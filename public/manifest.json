@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
 
-  "name": "Chrome Extension TypeScript Starter",
-  "description": "Chrome Extension, TypeScript, Visual Studio Code",
+  "name": "GPT toolset",
+  "description": "ChatGPT tools, easy and free",
   "version": "1.0",
 
   "options_ui": {
@@ -10,7 +10,7 @@
   },
 
   "action": {
-    "default_icon": "icon.png",
+    "default_icon": "icon.svg",
     "default_popup": "popup.html"
   },
 

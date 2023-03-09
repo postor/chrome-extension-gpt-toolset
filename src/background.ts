@@ -1,6 +1,6 @@
-function polling() {
-  // console.log("polling");
-  setTimeout(polling, 1000 * 30);
-}
-
-polling();
+chrome.runtime.onMessage.addListener(
+  function(req, sender, cb) {
+    console.log(req);
+    cb({other: 'value'});
+  }
+);
