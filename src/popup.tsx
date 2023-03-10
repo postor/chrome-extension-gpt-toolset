@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Popup from "./popup/Popup";
 
+// @ts-ignore
+let root = createRoot(document.getElementById("root"))
 
-ReactDOM.render(
+root.render(
   <React.StrictMode>
     <Popup />
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );

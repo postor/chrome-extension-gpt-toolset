@@ -1,9 +1,11 @@
 import React, { FC, useEffect, useState } from "react"
-import { useChromeStorageLocal } from "use-chrome-storage"
-import { getItemKey, getList, NameEnums } from "../store"
+import { closePopMenu } from "../utils/container"
+import { ActionEnums, getItemKey, getLanguage, getList, ITask, NameEnums } from "../utils/store"
+import useChromeStorage from "../utils/use-chrome-storage"
+import _ from "underscore"
 
-const MenuItem: FC<{ id: string }> = ({ id }) => {
-  let [data] = useChromeStorageLocal(getItemKey(id), { label: ``, value: `` })
+
+const Button: FC<{ label: string, onClick: React.MouseEventHandler<HTMLDivElement> }> = ({ label, onClick }) => {
   return <div
     style={{
       color: '#fff',
@@ -12,13 +14,9 @@ const MenuItem: FC<{ id: string }> = ({ id }) => {
       textAlign: 'center'
     }}
     onClick={async (e) => {
-      e.stopPropagation()
-      e.preventDefault()
-      console.log({
-        text: await chrome.storage.local.get(NameEnums.text),
-        id,
-        data,
-      })
+      await onClick(e)
+      window.getSelection()?.empty();
+      closePopMenu()
     }}
     onMouseDown={e => {
       e.stopPropagation()
@@ -28,7 +26,29 @@ const MenuItem: FC<{ id: string }> = ({ id }) => {
       e.stopPropagation()
       e.preventDefault()
     }}
-  > {data.label}</div >
+  > {label}</div >
+}
+
+const MenuItem: FC<{ id: string }> = ({ id }) => {
+  let [data] = useChromeStorage(getItemKey(id), { label: ``, value: ``, edit: false })
+  let [task, setTask] = useChromeStorage<ITask | undefined>(NameEnums.task, undefined)
+  return <Button
+    label={data.label}
+    onClick={
+      async (e) => {
+        console.log((await chrome.storage.local.get(NameEnums.text)).text)
+        let task = {
+          action: ActionEnums.GptChat,
+          text: (await chrome.storage.local.get(NameEnums.text)).text,
+          language: await getLanguage(),
+          template: data.value,
+          edit: data.edit,
+        }
+        setTask(task)
+        chrome.runtime.sendMessage(task, function (r) { console.log(r); });
+      }
+    }
+  ></Button >
 }
 
 const PopMenu: FC<{ onAction: (action: string) => void }> = () => {
@@ -41,6 +61,9 @@ const PopMenu: FC<{ onAction: (action: string) => void }> = () => {
     flexDirection: 'column',
     rowGap: '1px',
   }}>
+    <Button label="copy only" onClick={async e => {
+      navigator.clipboard.writeText((await chrome.storage.local.get(NameEnums.text)).text)
+    }} />
     {list.map(id => <MenuItem id={id} />)}
   </div>
 }
